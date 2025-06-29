@@ -7,16 +7,16 @@
   <section name="data">
     <explorer view="C:\ProgramData\PureBasic\Examples\" pattern="0"/>
     <log show="1"/>
-    <lastopen date="2025-06-12 01:11" user="Ditin2" host="DESKTOP-SVLCQ1M"/>
+    <lastopen date="2025-06-26 19:29" user="Ditin2" host="DESKTOP-0BJ68TL"/>
   </section>
   <section name="files">
     <file name="ReencodeFfmpeg.pb">
       <config load="0" scan="1" panel="1" warn="1" lastopen="1" sortindex="1" panelstate="+"/>
-      <fingerprint md5="2d162bbd32a4c7a6dba6c22e0fdec2e3"/>
+      <fingerprint md5="6f505add65ce527c6514e03c7ddb853b"/>
     </file>
     <file name="ReencodeFfmpeg.pbf">
       <config load="0" scan="1" panel="1" warn="1" lastopen="1" sortindex="2" panelstate="+"/>
-      <fingerprint md5="e82656bbf02ec6bf76a97c826689cbed"/>
+      <fingerprint md5="855c9e40eb4e6be0ee105280d866cd1d"/>
     </file>
   </section>
   <section name="targets">

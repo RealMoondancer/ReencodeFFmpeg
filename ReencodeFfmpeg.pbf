@@ -9,31 +9,46 @@
 
 Global Window_0
 
-Global Text_0, inputFile, in_open, Text_0_Copy1, outputFile, out_open, wait_text, start, normalize, Text_1, Text_1_Copy1, Frame_0, ultrafast, superfast, veryfast, faster, fast, medium, slow, slower, veryslow, download_text
+Global Text_0, inputFile, in_open, Text_0_Copy1, outputFile, out_open, wait_text, start, normalize, Text_1, Text_1_Copy1, Frame_0, ultrafast, superfast, veryfast, faster, fast, medium, slow, slower, veryslow, download_text, Frame_1, Frame_3, height_spin, width_spin, Text_2, Text_2_Copy1, getResolution, res_help, Frame_3_Copy1, Text_2_Copy1, fps_spin, getFps, fps_help, use_advanced, advanced_cmd, advanced_help, Frame_3_Copy1_Copy1, cut_help, Text_2_Copy2, start_spin, duration_spin, cancel_download, getDuration, select_duration, select_end
 
 Enumeration FormMenu
-  #MenuItem_2
-  #MenuItem_3
+  #MenuItem_8
+  #MenuItem_6
   #MenuItem_4
+  #MenuItem_3
   #MenuItem_5
+  #MenuItem_10
 EndEnumeration
 
+Declare EnsureFFmpeg(Event)
 Declare CheckUpdate(Event)
 Declare About(Event)
 Declare PCRELicense(Event)
 Declare RemoveFFmpeg(Event)
+Declare RemoveConfig(Event)
 Declare StartReencode(EventType)
+Declare HelpCut(EventType)
 Declare SelectOutput(EventType)
+Declare HelpFps(EventType)
+Declare GetDuration(EventType)
+Declare HelpResolution(EventType)
+Declare GetFps(EventType)
+Declare GetResolution(EventType)
 Declare SelectInput(EventType)
+Declare HelpAdvanced(EventType)
+Declare ToggleAdvanced(EventType)
 
-Procedure OpenWindow_0(x = 100, y = 100, width = 600, height = 390)
+Procedure OpenWindow_0(x = 100, y = 100, width = 970, height = 390)
   Window_0 = OpenWindow(#PB_Any, x, y, width, height, "FFmpeg Reencode", #PB_Window_SystemMenu | #PB_Window_MinimizeGadget | #PB_Window_TitleBar)
   CreateMenu(0, WindowID(Window_0))
+  MenuTitle("FFmpeg")
+  MenuItem(#MenuItem_8, "Check for FFmpeg")
+  MenuItem(#MenuItem_6, "Delete FFmpeg")
   MenuTitle("About")
-  MenuItem(#MenuItem_2, "Delete FFmpeg")
-  MenuItem(#MenuItem_3, "About")
   MenuItem(#MenuItem_4, "PCRE license (RegEx library)")
+  MenuItem(#MenuItem_3, "About")
   MenuItem(#MenuItem_5, "Check For Updates")
+  MenuItem(#MenuItem_10, "Delete Config File")
   Text_0 = TextGadget(#PB_Any, 10, 10, 100, 25, "Input File")
   inputFile = StringGadget(#PB_Any, 10, 30, 460, 25, "")
   GadgetToolTip(inputFile, "Input File")
@@ -42,9 +57,9 @@ Procedure OpenWindow_0(x = 100, y = 100, width = 600, height = 390)
   outputFile = StringGadget(#PB_Any, 10, 90, 460, 25, "")
   GadgetToolTip(outputFile, "Output File")
   out_open = ButtonGadget(#PB_Any, 480, 90, 110, 25, "Open...")
-  wait_text = TextGadget(#PB_Any, 220, 300, 170, 20, "Please wait for FFmpeg to finish")
+  wait_text = TextGadget(#PB_Any, 10, 280, 590, 50, "Please wait for FFmpeg to finish", #PB_Text_Center)
   SetGadgetColor(wait_text, #PB_Gadget_FrontColor,RGB(255,0,0))
-  start = ButtonGadget(#PB_Any, 250, 320, 100, 25, "Reencode")
+  start = ButtonGadget(#PB_Any, 50, 330, 100, 25, "Reencode")
   normalize = CheckBoxGadget(#PB_Any, 10, 130, 190, 25, "Normalize Audio (Experimental!)")
   Text_1 = TextGadget(#PB_Any, 230, 220, 360, 25, "Note: Higher encoding speeds result in less compression efficiency")
   Text_1_Copy1 = TextGadget(#PB_Any, 230, 240, 360, 25, "(Very Slow is about 80% smaller than Ultra Fast)")
@@ -61,6 +76,34 @@ Procedure OpenWindow_0(x = 100, y = 100, width = 600, height = 390)
   veryslow = OptionGadget(#PB_Any, 450, 190, 100, 25, "Very Slow")
   download_text = TextGadget(#PB_Any, 130, 280, 350, 20, "Downloading FFmpeg...", #PB_Text_Center)
   SetGadgetColor(download_text, #PB_Gadget_FrontColor,RGB(255,0,0))
+  Frame_1 = FrameGadget(#PB_Any, 610, 10, 350, 270, "Editing")
+  Frame_3 = FrameGadget(#PB_Any, 620, 40, 330, 70, "Video Resolution")
+  height_spin = SpinGadget(#PB_Any, 740, 80, 100, 25, -1, 0, #PB_Spin_Numeric)
+  GadgetToolTip(height_spin, "Height")
+  width_spin = SpinGadget(#PB_Any, 630, 80, 100, 25, -1, 0, #PB_Spin_Numeric)
+  GadgetToolTip(width_spin, "Width")
+  Text_2 = TextGadget(#PB_Any, 630, 60, 50, 20, "Width")
+  Text_2_Copy1 = TextGadget(#PB_Any, 740, 60, 50, 20, "Height")
+  getResolution = ButtonGadget(#PB_Any, 850, 80, 90, 25, "Get Resolution")
+  res_help = ButtonGadget(#PB_Any, 920, 60, 20, 20, "?")
+  Frame_3_Copy1 = FrameGadget(#PB_Any, 620, 120, 330, 70, "Video Framerate")
+  Text_2_Copy1 = TextGadget(#PB_Any, 630, 140, 50, 20, "FPS")
+  fps_spin = SpinGadget(#PB_Any, 630, 160, 100, 25, -1, 0, #PB_Spin_Numeric)
+  getFps = ButtonGadget(#PB_Any, 850, 160, 90, 25, "Get FPS")
+  fps_help = ButtonGadget(#PB_Any, 920, 140, 20, 20, "?")
+  use_advanced = CheckBoxGadget(#PB_Any, 790, 310, 140, 20, "Use Advanced Options")
+  advanced_cmd = StringGadget(#PB_Any, 200, 330, 750, 25, "")
+  advanced_help = ButtonGadget(#PB_Any, 930, 310, 20, 20, "?")
+  Frame_3_Copy1_Copy1 = FrameGadget(#PB_Any, 620, 200, 330, 70, "Cut Video")
+  cut_help = ButtonGadget(#PB_Any, 920, 220, 20, 20, "?")
+  Text_2_Copy2 = TextGadget(#PB_Any, 630, 220, 60, 20, "Start Time")
+  start_spin = SpinGadget(#PB_Any, 630, 240, 100, 25, -1, 0, #PB_Spin_Numeric)
+  duration_spin = SpinGadget(#PB_Any, 740, 240, 100, 25, -1, 0, #PB_Spin_Numeric)
+  cancel_download = ButtonGadget(#PB_Any, 250, 300, 110, 25, "Cancel Download")
+  getDuration = ButtonGadget(#PB_Any, 850, 240, 90, 25, "Get Duration")
+  select_duration = OptionGadget(#PB_Any, 740, 220, 70, 20, "Duration")
+  SetGadgetState(select_duration, 1)
+  select_end = OptionGadget(#PB_Any, 810, 220, 70, 20, "End Time")
 EndProcedure
 
 Procedure Window_0_Events(event)
@@ -70,14 +113,18 @@ Procedure Window_0_Events(event)
 
     Case #PB_Event_Menu
       Select EventMenu()
-        Case #MenuItem_2
+        Case #MenuItem_8
+          EnsureFFmpeg(EventMenu())
+        Case #MenuItem_6
           RemoveFFmpeg(EventMenu())
-        Case #MenuItem_3
-          About(EventMenu())
         Case #MenuItem_4
           PCRELicense(EventMenu())
+        Case #MenuItem_3
+          About(EventMenu())
         Case #MenuItem_5
           CheckUpdate(EventMenu())
+        Case #MenuItem_10
+          RemoveConfig(EventMenu())
       EndSelect
 
     Case #PB_Event_Gadget
@@ -88,6 +135,22 @@ Procedure Window_0_Events(event)
           SelectOutput(EventType())          
         Case start
           StartReencode(EventType())          
+        Case getResolution
+          GetResolution(EventType())          
+        Case res_help
+          HelpResolution(EventType())          
+        Case getFps
+          GetFps(EventType())          
+        Case fps_help
+          HelpFps(EventType())          
+        Case use_advanced
+          ToggleAdvanced(EventType())          
+        Case advanced_help
+          HelpAdvanced(EventType())          
+        Case cut_help
+          HelpCut(EventType())          
+        Case getDuration
+          GetDuration(EventType())          
       EndSelect
   EndSelect
   ProcedureReturn #True
